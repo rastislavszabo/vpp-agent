@@ -1,4 +1,4 @@
-//  Copyright (c) 2018 Cisco and/or its affiliates.
+//  Copyright (c) 2020 Cisco and/or its affiliates.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -12,22 +12,26 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-package linux
+package vpp
 
 import (
-	linux_interfaces "go.ligato.io/vpp-agent/v3/proto/ligato/linux/interfaces"
-	linux_iptables "go.ligato.io/vpp-agent/v3/proto/ligato/linux/iptables"
-	linux_l3 "go.ligato.io/vpp-agent/v3/proto/ligato/linux/l3"
+	"unicode"
+
+	"github.com/onsi/gomega"
+	"github.com/onsi/gomega/types"
 )
 
-type (
-	// Interface
-	Interface = linux_interfaces.Interface
+func BePrintable() types.GomegaMatcher {
+	return gomega.WithTransform(func(s string) bool {
+		return isAsciiPrintable(s)
+	}, gomega.BeTrue())
+}
 
-	// L3
-	Route    = linux_l3.Route
-	ARPEntry = linux_l3.ARPEntry
-
-	// IP tables
-	IPTablesRuleChain = linux_iptables.RuleChain
-)
+func isAsciiPrintable(s string) bool {
+	for _, r := range s {
+		if r > unicode.MaxASCII || !unicode.IsPrint(r) {
+			return false
+		}
+	}
+	return true
+}
